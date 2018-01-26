@@ -3,6 +3,7 @@ package teammates.common.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -448,6 +449,13 @@ public final class TimeHelper {
             return null;
         }
 
+    }
+
+    /**
+     * Temporary method for transition from storing time zone as double
+     */
+    private static ZoneOffset convertToZoneOffset(double timeZone) {
+        return ZoneOffset.ofTotalSeconds((int) (timeZone * 60 * 60));
     }
 
     /**
