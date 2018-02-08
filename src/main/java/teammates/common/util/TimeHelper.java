@@ -3,7 +3,10 @@ package teammates.common.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -379,18 +382,23 @@ public final class TimeHelper {
      * Returns true if the {@code time1} falls within past 1 hour of {@code time2}.
      * That is exactly one hour or less from time2 but earlier than time2.
      * Precision is at millisecond level.
+     *
+     * @deprecated Use {@link TimeHelper#isWithinPastHour(Instant, Instant)} instead.
      */
+    @Deprecated
     public static boolean isWithinPastHour(Date time1, Date time2) {
-        Calendar calendarTime1 = Calendar.getInstance(SystemParams.TIME_ZONE);
-        calendarTime1.setTime(time1);
+        return isWithinPastHour(time1.toInstant(), time2.toInstant());
+    }
 
-        Calendar calendarTime2 = Calendar.getInstance(SystemParams.TIME_ZONE);
-        calendarTime2.setTime(time2);
-
-        long time1Millis = calendarTime1.getTimeInMillis();
-        long time2Millis = calendarTime2.getTimeInMillis();
-        long differenceBetweenNowAndCal = (time2Millis - time1Millis) / (60 * 60 * 1000);
-        return differenceBetweenNowAndCal == 0 && calendarTime2.after(calendarTime1);
+    /**
+     * Checks if a given instant falls before another instant of comparison, and they are within one hour of each other.
+     * @param instant1 instant of comparison
+     * @param instant2 given instant
+     * @return true if the {@code instant1} falls before {@code time2} and within one hour or less.
+     */
+    public static boolean isWithinPastHour(Instant instant1, Instant instant2) {
+        return instant2.isAfter(instant1)
+                && ChronoUnit.MINUTES.between(instant1, instant2) <= Duration.ofHours(1).toMinutes();
     }
 
     /**
@@ -452,7 +460,7 @@ public final class TimeHelper {
     }
 
     /**
-     * Temporary method for transition from storing time zone as double
+     * Temporary method for transition from storing time zone as double.
      */
     private static ZoneOffset convertToZoneOffset(double timeZone) {
         return ZoneOffset.ofTotalSeconds((int) (timeZone * 60 * 60));
