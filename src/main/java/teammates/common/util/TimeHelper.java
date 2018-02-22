@@ -451,6 +451,7 @@ public final class TimeHelper {
      *  <li>{@code startTime < time <= endTime}</li>
      *  <li>{@code startTime < time < endTime}</li>
      * </ul>
+     * @deprecated Use {@code TimeHelper#isTimeWithinPeriod(Instant, Instant, Instant, boolean, boolean)} instead.
      * @param startTime the start time of the period
      * @param endTime the end time of the period
      * @param time the time to be checked
@@ -458,14 +459,40 @@ public final class TimeHelper {
      * @param isEndInclusive true to allow time to fall on end time
      * @return true if the time falls between the start and end time
      */
+    @Deprecated
     public static boolean isTimeWithinPeriod(Date startTime, Date endTime, Date time,
                                              boolean isStartInclusive, boolean isEndInclusive) {
         if (startTime == null || endTime == null || time == null) {
             return false;
         }
 
-        boolean isAfterStartTime = time.after(startTime) || isStartInclusive && time.equals(startTime);
-        boolean isBeforeEndTime = time.before(endTime) || isEndInclusive && time.equals(endTime);
+        return isTimeWithinPeriod(startTime.toInstant(), endTime.toInstant(), time.toInstant(),
+                isStartInclusive, isEndInclusive);
+    }
+
+    /**
+     * Checks if the time falls between the period specified. Possible scenarios:
+     * <ul>
+     *  <li>{@code start <= given <= end}</li>
+     *  <li>{@code start <= given < end}</li>
+     *  <li>{@code start < given <= end}</li>
+     *  <li>{@code start < given < end}</li>
+     * </ul>
+     * @param start the start time of the period
+     * @param end the end time of the period
+     * @param given the instant to be checked
+     * @param isStartInclusive true to allow given instant to fall on start time
+     * @param isEndInclusive true to allow given instant to fall on time
+     * @return true if the time falls between the start and end time
+     */
+    public static boolean isTimeWithinPeriod(Instant start, Instant end, Instant given,
+                                             boolean isStartInclusive, boolean isEndInclusive) {
+        if (start == null || end == null || given == null) {
+            return false;
+        }
+
+        boolean isAfterStartTime = given.isAfter(start) || isStartInclusive && given.equals(start);
+        boolean isBeforeEndTime = given.isBefore(end) || isEndInclusive && given.equals(end);
 
         return isAfterStartTime && isBeforeEndTime;
     }
