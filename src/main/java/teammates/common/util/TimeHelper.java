@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -397,14 +398,33 @@ public final class TimeHelper {
     /**
      * Returns the date object representing the next full hour from now.
      * Example: If now is 1055, this will return 1100
+     * @deprecated Use {@code TimeHelper#getNextHourInstant} instead.
      */
-    public static Date getNextHour() {
-        Calendar cal = Calendar.getInstance(SystemParams.TIME_ZONE);
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
+    @Deprecated
+    public static Date getNextHourDate() {
+        return Date.from(getNextHourInstant());
+    }
+
+    /**
+     * Returns the java.time.Instant object representing the next full hour from now.
+     * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
+     *
+     * Wrapper for getNextHourFromInstant.
+     * @return
+     */
+    public static Instant getNextHourInstant() {
+        return getNextHourFromInstant(Instant.now());
+    }
+
+    /**
+     * Returns the java.time.Instant object representing the next full hour from a given Instant.
+     * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
+     *
+     * java.time objects do not support rounding up, so we have to round down to the closest hour, then add an hour.
+     * @return
+     */
+    public static Instant getNextHourFromInstant(Instant from) {
+        return from.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1));
     }
 
     /**

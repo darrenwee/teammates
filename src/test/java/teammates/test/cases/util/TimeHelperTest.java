@@ -1,6 +1,9 @@
 package teammates.test.cases.util;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -156,6 +159,8 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, null, time, false, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, null, time, false, false));
 
+
+
         ______TS("Time null test");
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, null, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, null, true, false));
@@ -202,6 +207,31 @@ public class TimeHelperTest extends BaseTestCase {
         cal.set(2015, 10, 30, 16, 0, 0);
         date = cal.getTime();
         assertEquals("Mon, 30 Nov 2015, 11:45 AM UTC-0415", TimeHelper.formatDateTimeForSessions(date, -4.25));
+    }
+
+    @Test
+    public void testGetNextHourFromInstant() {
+        ______TS("one minute after hour rounds to next hour");
+        Instant input = getInstantOf(2017, Month.JUNE, 15, 13, 1);
+        Instant expected = getInstantOf(2017, Month.JUNE, 15, 14, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("one minute before next hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 13, 59);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("on the hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 13, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("one minute to next hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 12, 59);
+        expected = getInstantOf(2017, Month.JUNE, 15, 13, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+    }
+
+    private Instant getInstantOf(int year, Month month, int day, int hour, int minute) {
+        return LocalDateTime.of(year, month, day, hour, minute).toInstant(ZoneOffset.UTC);
     }
 
 }
