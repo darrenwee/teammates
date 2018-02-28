@@ -159,8 +159,6 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, null, time, false, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, null, time, false, false));
 
-
-
         ______TS("Time null test");
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, null, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, null, true, false));
