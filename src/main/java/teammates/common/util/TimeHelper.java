@@ -408,7 +408,6 @@ public final class TimeHelper {
     /**
      * Returns the java.time.Instant object representing the next full hour from now.
      * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
-     *
      * Wrapper for getNextHourFromInstant.
      * @return
      */
@@ -419,7 +418,6 @@ public final class TimeHelper {
     /**
      * Returns the java.time.Instant object representing the next full hour from a given Instant.
      * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
-     *
      * java.time objects do not support rounding up, so we have to round down to the closest hour, then add an hour.
      * @return
      */
