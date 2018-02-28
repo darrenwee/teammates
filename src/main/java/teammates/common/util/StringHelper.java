@@ -185,22 +185,6 @@ public final class StringHelper {
         return df.format(doubleVal);
     }
 
-    public static String toUtcFormat(double hourOffsetTimeZone) {
-        String utcFormatTimeZone = "UTC";
-        if (hourOffsetTimeZone == 0) {
-            return utcFormatTimeZone;
-        }
-
-        if ((int) hourOffsetTimeZone == hourOffsetTimeZone) {
-            return utcFormatTimeZone + String.format(" %+03d:00", (int) hourOffsetTimeZone);
-        }
-
-        return utcFormatTimeZone + String.format(
-                                    " %+03d:%02d",
-                                    (int) hourOffsetTimeZone,
-                                    (int) (Math.abs(hourOffsetTimeZone - (int) hourOffsetTimeZone) * 300 / 5));
-    }
-
     /**
      * split a full name string into first and last names
      * <br>

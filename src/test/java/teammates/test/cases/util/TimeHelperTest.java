@@ -234,4 +234,37 @@ public class TimeHelperTest extends BaseTestCase {
         return LocalDateTime.of(year, month, day, hour, minute).toInstant(ZoneOffset.UTC);
     }
 
+    @Test
+    public void testFormatTimeZoneToUtcOffset() {
+        ______TS("timezone offset of +8.0");
+        assertEquals("UTC +08:00", TimeHelper.formatTimeZoneToUtcOffset(8.0));
+
+        ______TS("timezone offset of -8.0");
+        assertEquals("UTC -08:00", TimeHelper.formatTimeZoneToUtcOffset(-8.0));
+
+        ______TS("timezone offset of +18.0");
+        assertEquals("UTC +18:00", TimeHelper.formatTimeZoneToUtcOffset(18.0));
+
+        ______TS("timezone offset of -18.0");
+        assertEquals("UTC -18:00", TimeHelper.formatTimeZoneToUtcOffset(-18.0));
+
+        ______TS("timezone offset of +0.25");
+        assertEquals("UTC +00:15", TimeHelper.formatTimeZoneToUtcOffset(0.25));
+
+        ______TS("timezone offset of +0.5");
+        assertEquals("UTC +00:30", TimeHelper.formatTimeZoneToUtcOffset(0.5));
+
+        ______TS("timezone offset of +0.75");
+        assertEquals("UTC +00:45", TimeHelper.formatTimeZoneToUtcOffset(0.75));
+
+        ______TS("timezone offset of -0.25");
+        assertEquals("UTC -00:15", TimeHelper.formatTimeZoneToUtcOffset(-0.25));
+
+        ______TS("timezone offset of -0.5");
+        assertEquals("UTC -00:30", TimeHelper.formatTimeZoneToUtcOffset(-0.5));
+
+        ______TS("timezone offset of -0.75");
+        assertEquals("UTC -00:45", TimeHelper.formatTimeZoneToUtcOffset(-0.75));
+    }
+
 }

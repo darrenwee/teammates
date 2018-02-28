@@ -100,7 +100,7 @@ public class PageData {
             result.add("<option value=\"" + Const.INT_UNINITIALIZED + "\" selected></option>");
         }
         for (Double timeZoneOption : options) {
-            String utcFormatOption = StringHelper.toUtcFormat(timeZoneOption);
+            String utcFormatOption = TimeHelper.formatTimeZoneToUtcOffset(timeZoneOption);
             result.add("<option value=\"" + formatAsString(timeZoneOption) + "\""
                        + (existingTimeZone == timeZoneOption ? " selected" : "") + ">" + "(" + utcFormatOption
                        + ") " + TimeHelper.getCitiesForTimeZone(Double.toString(timeZoneOption)) + "</option>");
@@ -117,7 +117,7 @@ public class PageData {
         }
 
         for (Double timeZoneOption : options) {
-            String utcFormatOption = StringHelper.toUtcFormat(timeZoneOption);
+            String utcFormatOption = TimeHelper.formatTimeZoneToUtcOffset(timeZoneOption);
             String textToDisplay = "(" + utcFormatOption
                                             + ") " + TimeHelper.getCitiesForTimeZone(Double.toString(timeZoneOption));
             boolean isExistingTimeZone = existingTimeZone == timeZoneOption;

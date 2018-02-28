@@ -8,7 +8,6 @@ import java.util.Map;
 import teammates.common.datatransfer.attributes.AccountAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.util.Const;
-import teammates.common.util.StringHelper;
 import teammates.common.util.TimeHelper;
 import teammates.common.util.Url;
 import teammates.ui.template.AdminFeedbackSessionRow;
@@ -122,10 +121,6 @@ public class AdminSessionsPageData extends PageData {
 
     public List<String> getTimeZoneOptionsAsHtml() {
         return getTimeZoneOptionsAsHtml(zone);
-    }
-
-    public String getTimeZoneAsString() {
-        return StringHelper.toUtcFormat(zone);
     }
 
     public String getFeedbackSessionStatsLink(String courseId, String feedbackSessionName, String user) {

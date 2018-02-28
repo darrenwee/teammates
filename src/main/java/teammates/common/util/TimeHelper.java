@@ -359,6 +359,24 @@ public final class TimeHelper {
     }
 
     /**
+     * Formatter for timezone offsets of type double.
+     * Example: a offset of -8.5 returns "UTC -08:30".
+     * Precision can be guaranteed to a quarter of an hour (covered by tests).
+     *
+     * @param hourOffsetTimeZone the hour offset between -19 to 19 non inclusive.
+     * @return UTC offset string.
+     * @deprecated Timezones should not be passed around as doubles, use ZoneId/ZoneOffset instead.
+     */
+    @Deprecated
+    public static String formatTimeZoneToUtcOffset(double hourOffsetTimeZone) {
+        int hours = (int) hourOffsetTimeZone;
+        int minutes = (int) ((hourOffsetTimeZone - hours) * 60.0);
+
+        ZoneOffset offset = ZoneOffset.ofHoursMinutes(hours, minutes);
+        return "UTC " + offset.toString();
+    }
+
+    /**
      * Converts the date string to a Date object.
      *
      * @param dateInStringFormat should be in the format {@link SystemParams#DEFAULT_DATE_TIME_FORMAT}
