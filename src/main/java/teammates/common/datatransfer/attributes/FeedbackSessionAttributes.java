@@ -1,5 +1,7 @@
 package teammates.common.datatransfer.attributes;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -227,14 +229,19 @@ public class FeedbackSessionAttributes extends EntityAttributes<FeedbackSession>
         return getInvalidityInfo().isEmpty();
     }
 
-    public boolean isClosedAfter(int hours) {
-        Date now = new Date();
+    /**
+     * Tests if feedback session is currently open and will be closed after a given number of hours.
+     *
+     * @param hours number of hours to look ahead
+     * @return true if the feedback session is currently open and it will be closed within {@code hours}; false otherwise.
+     */
+    public boolean isClosedAfter(long hours) {
+        Instant now = Instant.now();
+        // TODO remember to change this when startTime and endTime fields are migrated.
+        Instant start = startTime.toInstant();
+        Instant end = endTime.toInstant();
 
-        long nowMillis = now.getTime();
-        long deadlineMillis = endTime.getTime();
-        long differenceBetweenDeadlineAndNow = (deadlineMillis - nowMillis) / (60 * 60 * 1000);
-
-        return now.after(startTime) && differenceBetweenDeadlineAndNow < hours;
+        return now.isAfter(start) && Duration.between(now, end).compareTo(Duration.ofHours(hours)) < 0;
     }
 
     public boolean isClosingWithinTimeLimit(int hours) {
