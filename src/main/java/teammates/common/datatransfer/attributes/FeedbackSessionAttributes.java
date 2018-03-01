@@ -1,5 +1,7 @@
 package teammates.common.datatransfer.attributes;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -227,14 +229,19 @@ public class FeedbackSessionAttributes extends EntityAttributes<FeedbackSession>
         return getInvalidityInfo().isEmpty();
     }
 
-    public boolean isClosedAfter(int hours) {
-        Date now = new Date();
+    /**
+     * Tests if feedback session is currently open and will be closed after a given number of hours.
+     *
+     * @param hours number of hours to look ahead
+     * @return true if the feedback session is currently open and it will be closed within {@code hours}; false otherwise.
+     */
+    public boolean isClosedAfter(long hours) {
+        Instant now = Instant.now();
+        // TODO remember to change this when startTime and endTime fields are migrated.
+        Instant start = startTime.toInstant();
+        Instant end = endTime.toInstant();
 
-        long nowMillis = now.getTime();
-        long deadlineMillis = endTime.getTime();
-        long differenceBetweenDeadlineAndNow = (deadlineMillis - nowMillis) / (60 * 60 * 1000);
-
-        return now.after(startTime) && differenceBetweenDeadlineAndNow < hours;
+        return now.isAfter(start) && Duration.between(now, end).compareTo(Duration.ofHours(hours)) < 0;
     }
 
     public boolean isClosingWithinTimeLimit(int hours) {
@@ -261,30 +268,31 @@ public class FeedbackSessionAttributes extends EntityAttributes<FeedbackSession>
     }
 
     /**
-     * Returns {@code true} if it is after the closing time of this feedback session; {@code false} if not.
+     * Checks if the feedback session is closed (accounting for the grace period of this session).
+     * @return true if it is after the closing time and grace period of this feedback session; false otherwise.
      */
     public boolean isClosed() {
         if (endTime == null) {
             return false;
         }
 
-        Date now = new Date();
-        Date end = new Date(endTime.getTime() + gracePeriod * 60000L);
-
-        return now.after(end);
+        // TODO change this after endTime is migrated to Instant
+        Instant end = endTime.toInstant();
+        return Instant.now().isAfter(end.plus(Duration.ofMinutes(gracePeriod)));
     }
 
     /**
-     * Returns true if the session is currently open and accepting responses.
+     * Checks if the feedback session is currently open.
+     * @return true if it is after the start time but before the end time (not incl. grace period); false otherwise.
      */
     public boolean isOpened() {
         if (startTime == null || endTime == null) {
             return false;
         }
 
-        Date now = new Date();
-
-        return now.after(startTime) && now.before(endTime);
+        Instant now = Instant.now();
+        // TODO change this line after startTime/endTime are migrated to Instant
+        return now.isAfter(startTime.toInstant()) && now.isBefore(endTime.toInstant());
     }
 
     /**
