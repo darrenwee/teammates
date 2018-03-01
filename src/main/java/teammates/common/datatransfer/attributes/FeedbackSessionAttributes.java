@@ -268,17 +268,17 @@ public class FeedbackSessionAttributes extends EntityAttributes<FeedbackSession>
     }
 
     /**
-     * Returns {@code true} if it is after the closing time of this feedback session; {@code false} if not.
+     * Checks if the feedback session is closed (accounting for the grace period of this session).
+     * @return true if it is after the closing time and grace period of this feedback session; false otherwise.
      */
     public boolean isClosed() {
         if (endTime == null) {
             return false;
         }
 
-        Date now = new Date();
-        Date end = new Date(endTime.getTime() + gracePeriod * 60000L);
-
-        return now.after(end);
+        // TODO change this after endTime is migrated to Instant
+        Instant end = endTime.toInstant();
+        return Instant.now().isAfter(end.plus(Duration.ofMinutes(gracePeriod)));
     }
 
     /**
