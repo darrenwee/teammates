@@ -1,6 +1,10 @@
 package teammates.test.cases.util;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -53,55 +57,13 @@ public class TimeHelperTest extends BaseTestCase {
     }
 
     @Test
-    public void testIsWithinHour() {
-        Calendar timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-        ______TS("Time within past hour");
-
-        timeCalendar.add(Calendar.MINUTE, -10);
-        assertTrue(TimeHelper.isWithinPastHour(timeCalendar.getTime(),
-                   Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime()));
-
-        ______TS("End time not within past hour");
-
-        timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        timeCalendar.add(Calendar.MINUTE, -70);
-        assertFalse(TimeHelper.isWithinPastHour(timeCalendar.getTime(),
-                    Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime()));
-
-        timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        timeCalendar.add(Calendar.MINUTE, 10);
-        assertFalse(TimeHelper.isWithinPastHour(timeCalendar.getTime(),
-                    Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime()));
-
-        timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        timeCalendar.add(Calendar.MINUTE, 10);
-        assertFalse(TimeHelper.isWithinPastHour(timeCalendar.getTime(), timeCalendar.getTime()));
-
-        ______TS("Session ended but grace time left");
-        int gracePeriod = 15;
-        timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        timeCalendar.add(Calendar.MINUTE, -10);
-        assertFalse(TimeHelper.isWithinPastHour(new Date(timeCalendar.getTime().getTime() + gracePeriod * 60000L),
-                    Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime()));
-    }
-
-    @Test
     public void testIsTimeWithinPeriod() {
-        Calendar startCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar endCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-        // Set start time to 5 days before today and end time to 5 days after today
-        startCalendar.add(Calendar.DAY_OF_MONTH, -5);
-        endCalendar.add(Calendar.DAY_OF_MONTH, 5);
-
-        Date startTime = startCalendar.getTime();
-        Date endTime = endCalendar.getTime();
-        Date time;
+        Instant startTime = Instant.now().minus(Duration.ofDays(5));
+        Instant endTime = Instant.now().plus(Duration.ofDays(5));
+        Instant time;
 
         ______TS("Time within period test");
-        time = timeCalendar.getTime();
+        time = Instant.now();
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -109,8 +71,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time on start time test");
-        timeCalendar = startCalendar;
-        time = timeCalendar.getTime();
+        time = startTime;
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -118,8 +79,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time before start time test");
-        timeCalendar.add(Calendar.DAY_OF_MONTH, -10);
-        time = timeCalendar.getTime();
+        time = startTime.minus(Duration.ofDays(10));
 
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -127,8 +87,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time on end time test");
-        timeCalendar = endCalendar;
-        time = timeCalendar.getTime();
+        time = endTime;
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -136,8 +95,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time after start time test");
-        timeCalendar.add(Calendar.DAY_OF_MONTH, 10);
-        time = timeCalendar.getTime();
+        time = endTime.plus(Duration.ofDays(10));
 
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -202,6 +160,31 @@ public class TimeHelperTest extends BaseTestCase {
         cal.set(2015, 10, 30, 16, 0, 0);
         date = cal.getTime();
         assertEquals("Mon, 30 Nov 2015, 11:45 AM UTC-0415", TimeHelper.formatDateTimeForSessions(date, -4.25));
+    }
+
+    @Test
+    public void testGetNextHourFromInstant() {
+        ______TS("one minute after hour rounds to next hour");
+        Instant input = getInstantOf(2017, Month.JUNE, 15, 13, 1);
+        Instant expected = getInstantOf(2017, Month.JUNE, 15, 14, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("one minute before next hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 13, 59);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("on the hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 13, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+
+        ______TS("one minute to next hour rounds to next hour");
+        input = getInstantOf(2017, Month.JUNE, 15, 12, 59);
+        expected = getInstantOf(2017, Month.JUNE, 15, 13, 0);
+        assertEquals(expected, TimeHelper.getNextHourFromInstant(input));
+    }
+
+    private Instant getInstantOf(int year, Month month, int day, int hour, int minute) {
+        return LocalDateTime.of(year, month, day, hour, minute).toInstant(ZoneOffset.UTC);
     }
 
 }

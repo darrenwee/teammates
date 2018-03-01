@@ -1,5 +1,6 @@
 package teammates.common.util;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -7,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -157,29 +159,38 @@ public final class TimeHelper {
 
     /**
      * Returns the date object with specified offset in number of days from now.
+     * @deprecated Use {@link TimeHelper#getInstantDaysOffsetFromNow(long)} instead.
      */
-    public static Date getDateOffsetToCurrentTime(int offsetDays) {
-        Calendar cal = Calendar.getInstance(SystemParams.TIME_ZONE);
-        cal.setTime(cal.getTime());
-        cal.add(Calendar.DATE, +offsetDays);
-        return cal.getTime();
+    @Deprecated
+    public static Date getDateOffsetToCurrentTime(long offsetInDays) {
+        return Date.from(getInstantDaysOffsetFromNow(offsetInDays));
+    }
+
+    /**
+     * Returns an java.time.Instant object that is offset by a number of days from now.
+     * @param offsetInDays number of days offset by (integer).
+     * @return java.time.Instant offset by offsetInDays days.
+     */
+    public static Instant getInstantDaysOffsetFromNow(long offsetInDays) {
+        return Instant.now().plus(Duration.ofDays(offsetInDays));
     }
 
     /**
      * Returns the date object with specified offset in number of ms from now.
+     * @deprecated Use {@link TimeHelper#getInstantMillisOffsetFromNow(long)} instead.
      */
-    public static Date getMsOffsetToCurrentTime(int offsetMilliseconds) {
-        Calendar cal = Calendar.getInstance(SystemParams.TIME_ZONE);
-        cal.setTime(cal.getTime());
-        cal.add(Calendar.MILLISECOND, +offsetMilliseconds);
-        return cal.getTime();
+    @Deprecated
+    public static Date getMsOffsetToCurrentTime(long offsetMilliseconds) {
+        return Date.from(getInstantMillisOffsetFromNow(offsetMilliseconds));
     }
 
-    public static Date getMsOffsetToCurrentTimeInUserTimeZone(int offset, double timeZone) {
-        Date d = getMsOffsetToCurrentTime(offset);
-        Calendar c = Calendar.getInstance(SystemParams.TIME_ZONE);
-        c.setTime(d);
-        return convertToUserTimeZone(c, timeZone).getTime();
+    /**
+     * Returns an java.time.Instant object that is offset by a number of milliseconds from now.
+     * @param offsetInMillis number of milliseconds offset by (integer).
+     * @return java.time.Instant offset by offsetInMillis milliseconds from now.
+     */
+    public static Instant getInstantMillisOffsetFromNow(long offsetInMillis) {
+        return Instant.now().plus(Duration.ofMillis(offsetInMillis));
     }
 
     // User time zone is just a view of an Instant/ZonedDateTime,
@@ -387,14 +398,31 @@ public final class TimeHelper {
     /**
      * Returns the date object representing the next full hour from now.
      * Example: If now is 1055, this will return 1100
+     * @deprecated Use {@link TimeHelper#getNextHourInstant()} instead.
      */
-    public static Date getNextHour() {
-        Calendar cal = Calendar.getInstance(SystemParams.TIME_ZONE);
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
+    @Deprecated
+    public static Date getNextHourDate() {
+        return Date.from(getNextHourInstant());
+    }
+
+    /**
+     * Returns the java.time.Instant object representing the next full hour from now.
+     * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
+     * Wrapper for getNextHourFromInstant.
+     * @return
+     */
+    public static Instant getNextHourInstant() {
+        return getNextHourFromInstant(Instant.now());
+    }
+
+    /**
+     * Returns the java.time.Instant object representing the next full hour from a given Instant.
+     * Example: if now is 01/01/2016 1055, this will return an Instant representing 01/01/2016 1100.
+     * java.time objects do not support rounding up, so we have to round down to the closest hour, then add an hour.
+     * @return
+     */
+    public static Instant getNextHourFromInstant(Instant instant) {
+        return instant.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1));
     }
 
     /**
@@ -416,42 +444,6 @@ public final class TimeHelper {
 
     }
 
-    public static boolean isOlderThanAYear(Date compareDate) {
-        Date currentDate = new Date();
-        int differenceInDays;
-
-        differenceInDays = (int) ((currentDate.getTime() - compareDate.getTime()) / (1000 * 60 * 60 * 24));
-
-        return differenceInDays > 365;
-    }
-
-    /**
-     * Returns true if the {@code time} falls within the last hour.
-     * That is exactly one hour or less from the current time but earlier than current time.
-     * Precision is at millisecond level.
-     */
-    public static boolean isWithinPastHourFromNow(Date time) {
-        return isWithinPastHour(time, new Date());
-    }
-
-    /**
-     * Returns true if the {@code time1} falls within past 1 hour of {@code time2}.
-     * That is exactly one hour or less from time2 but earlier than time2.
-     * Precision is at millisecond level.
-     */
-    public static boolean isWithinPastHour(Date time1, Date time2) {
-        Calendar calendarTime1 = Calendar.getInstance(SystemParams.TIME_ZONE);
-        calendarTime1.setTime(time1);
-
-        Calendar calendarTime2 = Calendar.getInstance(SystemParams.TIME_ZONE);
-        calendarTime2.setTime(time2);
-
-        long time1Millis = calendarTime1.getTimeInMillis();
-        long time2Millis = calendarTime2.getTimeInMillis();
-        long differenceBetweenNowAndCal = (time2Millis - time1Millis) / (60 * 60 * 1000);
-        return differenceBetweenNowAndCal == 0 && calendarTime2.after(calendarTime1);
-    }
-
     /**
      * Checks if the time falls between the period specified. Possible scenarios:
      * <ul>
@@ -460,6 +452,7 @@ public final class TimeHelper {
      *  <li>{@code startTime < time <= endTime}</li>
      *  <li>{@code startTime < time < endTime}</li>
      * </ul>
+     * @deprecated Use {@link TimeHelper#isTimeWithinPeriod(Instant, Instant, Instant, boolean, boolean)} instead.
      * @param startTime the start time of the period
      * @param endTime the end time of the period
      * @param time the time to be checked
@@ -467,14 +460,40 @@ public final class TimeHelper {
      * @param isEndInclusive true to allow time to fall on end time
      * @return true if the time falls between the start and end time
      */
+    @Deprecated
     public static boolean isTimeWithinPeriod(Date startTime, Date endTime, Date time,
                                              boolean isStartInclusive, boolean isEndInclusive) {
         if (startTime == null || endTime == null || time == null) {
             return false;
         }
 
-        boolean isAfterStartTime = time.after(startTime) || isStartInclusive && time.equals(startTime);
-        boolean isBeforeEndTime = time.before(endTime) || isEndInclusive && time.equals(endTime);
+        return isTimeWithinPeriod(startTime.toInstant(), endTime.toInstant(), time.toInstant(),
+                isStartInclusive, isEndInclusive);
+    }
+
+    /**
+     * Checks if the time falls between the period specified. Possible scenarios:
+     * <ul>
+     *  <li>{@code start <= given <= end}</li>
+     *  <li>{@code start <= given < end}</li>
+     *  <li>{@code start < given <= end}</li>
+     *  <li>{@code start < given < end}</li>
+     * </ul>
+     * @param start the start time of the period
+     * @param end the end time of the period
+     * @param given the instant to be checked
+     * @param isStartInclusive true to allow given instant to fall on start time
+     * @param isEndInclusive true to allow given instant to fall on time
+     * @return true if the time falls between the start and end time
+     */
+    public static boolean isTimeWithinPeriod(Instant start, Instant end, Instant given,
+                                             boolean isStartInclusive, boolean isEndInclusive) {
+        if (start == null || end == null || given == null) {
+            return false;
+        }
+
+        boolean isAfterStartTime = given.isAfter(start) || isStartInclusive && given.equals(start);
+        boolean isBeforeEndTime = given.isBefore(end) || isEndInclusive && given.equals(end);
 
         return isAfterStartTime && isBeforeEndTime;
     }
@@ -559,12 +578,6 @@ public final class TimeHelper {
             Assumption.fail("Date in String is in wrong format.");
             return null;
         }
-    }
-
-    public static TimeZone getTimeZoneFromDoubleOffset(double sessionTimeZone) {
-        int hours = (int) sessionTimeZone;
-        int minutes = (int) ((Math.abs(sessionTimeZone) - Math.floor(Math.abs(sessionTimeZone))) * 60);
-        return TimeZone.getTimeZone(String.format("GMT%+03d:%02d", hours, minutes));
     }
 
 }
