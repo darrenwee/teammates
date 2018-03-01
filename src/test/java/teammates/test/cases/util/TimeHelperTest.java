@@ -1,5 +1,6 @@
 package teammates.test.cases.util;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -91,20 +92,12 @@ public class TimeHelperTest extends BaseTestCase {
 
     @Test
     public void testIsTimeWithinPeriod() {
-        Calendar startCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar endCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar timeCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-        // Set start time to 5 days before today and end time to 5 days after today
-        startCalendar.add(Calendar.DAY_OF_MONTH, -5);
-        endCalendar.add(Calendar.DAY_OF_MONTH, 5);
-
-        Date startTime = startCalendar.getTime();
-        Date endTime = endCalendar.getTime();
-        Date time;
+        Instant startTime = Instant.now().minus(Duration.ofDays(5));
+        Instant endTime = Instant.now().plus(Duration.ofDays(5));
+        Instant time;
 
         ______TS("Time within period test");
-        time = timeCalendar.getTime();
+        time = Instant.now();
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -112,8 +105,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time on start time test");
-        timeCalendar = startCalendar;
-        time = timeCalendar.getTime();
+        time = startTime;
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -121,8 +113,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time before start time test");
-        timeCalendar.add(Calendar.DAY_OF_MONTH, -10);
-        time = timeCalendar.getTime();
+        time = startTime.minus(Duration.ofDays(10));
 
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -130,8 +121,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time on end time test");
-        timeCalendar = endCalendar;
-        time = timeCalendar.getTime();
+        time = endTime;
 
         assertTrue(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
@@ -139,8 +129,7 @@ public class TimeHelperTest extends BaseTestCase {
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, false, false));
 
         ______TS("Time after start time test");
-        timeCalendar.add(Calendar.DAY_OF_MONTH, 10);
-        time = timeCalendar.getTime();
+        time = endTime.plus(Duration.ofDays(10));
 
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, true));
         assertFalse(TimeHelper.isTimeWithinPeriod(startTime, endTime, time, true, false));
