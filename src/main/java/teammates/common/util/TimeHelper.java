@@ -369,10 +369,15 @@ public final class TimeHelper {
      */
     @Deprecated
     public static String formatTimeZoneToUtcOffset(double hourOffsetTimeZone) {
+
         int hours = (int) hourOffsetTimeZone;
         int minutes = (int) ((hourOffsetTimeZone - hours) * 60.0);
 
         ZoneOffset offset = ZoneOffset.ofHoursMinutes(hours, minutes);
+
+        if ("Z".equals(offset.toString())) {
+            return "UTC";
+        }
         return "UTC " + offset.toString();
     }
 

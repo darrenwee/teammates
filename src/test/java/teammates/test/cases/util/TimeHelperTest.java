@@ -218,6 +218,10 @@ public class TimeHelperTest extends BaseTestCase {
 
         ______TS("timezone offset of -0.75");
         assertEquals("UTC -00:45", TimeHelper.formatTimeZoneToUtcOffset(-0.75));
+
+        ______TS("timezone offset of 0.0");
+        assertEquals("UTC", TimeHelper.formatTimeZoneToUtcOffset(0.0));
+        assertEquals("UTC", TimeHelper.formatTimeZoneToUtcOffset(-0.0));
     }
 
 }
