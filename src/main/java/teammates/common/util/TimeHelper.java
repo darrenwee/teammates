@@ -162,7 +162,7 @@ public final class TimeHelper {
      * @deprecated Use {@code TimeHelper#getInstantDateOffsetFromNow} instead.
      */
     @Deprecated
-    public static Date getDateOffsetFromNow(long offsetInDays) {
+    public static Date getDateOffsetToCurrentTime(long offsetInDays) {
         return Date.from(getInstantDaysOffsetFromNow(offsetInDays));
     }
 
@@ -180,7 +180,7 @@ public final class TimeHelper {
      * @deprecated Use {@code getInstantMillisOffsetFromNow} instead.
      */
     @Deprecated
-    public static Date getMsOffsetFromNow(long offsetMilliseconds) {
+    public static Date getMsOffsetToCurrentTime(long offsetMilliseconds) {
         return Date.from(getInstantMillisOffsetFromNow(offsetMilliseconds));
     }
 
