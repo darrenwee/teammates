@@ -159,7 +159,7 @@ public final class TimeHelper {
 
     /**
      * Returns the date object with specified offset in number of days from now.
-     * @deprecated Use {@code TimeHelper#getInstantDateOffsetFromNow} instead.
+     * @deprecated Use {@link TimeHelper#getInstantDaysOffsetFromNow(long)} instead.
      */
     @Deprecated
     public static Date getDateOffsetToCurrentTime(long offsetInDays) {
@@ -177,7 +177,7 @@ public final class TimeHelper {
 
     /**
      * Returns the date object with specified offset in number of ms from now.
-     * @deprecated Use {@code getInstantMillisOffsetFromNow} instead.
+     * @deprecated Use {@link TimeHelper#getInstantMillisOffsetFromNow(long)} instead.
      */
     @Deprecated
     public static Date getMsOffsetToCurrentTime(long offsetMilliseconds) {
@@ -416,7 +416,7 @@ public final class TimeHelper {
     /**
      * Returns the date object representing the next full hour from now.
      * Example: If now is 1055, this will return 1100
-     * @deprecated Use {@code TimeHelper#getNextHourInstant} instead.
+     * @deprecated Use {@link TimeHelper#getNextHourInstant()} instead.
      */
     @Deprecated
     public static Date getNextHourDate() {
@@ -439,8 +439,8 @@ public final class TimeHelper {
      * java.time objects do not support rounding up, so we have to round down to the closest hour, then add an hour.
      * @return
      */
-    public static Instant getNextHourFromInstant(Instant from) {
-        return from.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1));
+    public static Instant getNextHourFromInstant(Instant instant) {
+        return instant.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1));
     }
 
     /**
@@ -470,7 +470,7 @@ public final class TimeHelper {
      *  <li>{@code startTime < time <= endTime}</li>
      *  <li>{@code startTime < time < endTime}</li>
      * </ul>
-     * @deprecated Use {@code TimeHelper#isTimeWithinPeriod(Instant, Instant, Instant, boolean, boolean)} instead.
+     * @deprecated Use {@link TimeHelper#isTimeWithinPeriod(Instant, Instant, Instant, boolean, boolean)} instead.
      * @param startTime the start time of the period
      * @param endTime the end time of the period
      * @param time the time to be checked
