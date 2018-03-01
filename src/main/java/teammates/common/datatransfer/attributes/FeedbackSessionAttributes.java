@@ -282,16 +282,17 @@ public class FeedbackSessionAttributes extends EntityAttributes<FeedbackSession>
     }
 
     /**
-     * Returns true if the session is currently open and accepting responses.
+     * Checks if the feedback session is currently open.
+     * @return true if it is after the start time but before the end time (not incl. grace period); false otherwise.
      */
     public boolean isOpened() {
         if (startTime == null || endTime == null) {
             return false;
         }
 
-        Date now = new Date();
-
-        return now.after(startTime) && now.before(endTime);
+        Instant now = Instant.now();
+        // TODO change this line after startTime/endTime are migrated to Instant
+        return now.isAfter(startTime.toInstant()) && now.isBefore(endTime.toInstant());
     }
 
     /**
