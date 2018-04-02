@@ -1,14 +1,14 @@
 package teammates.ui.pagedata;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import teammates.common.datatransfer.attributes.AccountAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.util.Const;
-import teammates.common.util.StringHelper;
 import teammates.common.util.TimeHelper;
 import teammates.common.util.Url;
 import teammates.ui.template.AdminFeedbackSessionRow;
@@ -21,9 +21,9 @@ public class AdminSessionsPageData extends PageData {
     private int totalClosedStatusSessions;
     private int totalWaitToOpenStatusSessions;
     private int totalInstitutes;
-    private Date rangeStart;
-    private Date rangeEnd;
-    private double zone;
+    private LocalDateTime rangeStart;
+    private LocalDateTime rangeEnd;
+    private ZoneId timeZone;
     private boolean isShowAll;
     private List<InstitutionPanel> institutionPanels;
     private AdminFilter filter;
@@ -36,8 +36,8 @@ public class AdminSessionsPageData extends PageData {
     public void init(
             Map<String, List<FeedbackSessionAttributes>> map, Map<String, String> sessionToInstructorIdMap,
             int totalOngoingSessions, int totalOpenStatusSessions, int totalClosedStatusSessions,
-            int totalWaitToOpenStatusSessions, int totalInstitutes, Date rangeStart, Date rangeEnd,
-            double zone, boolean isShowAll) {
+            int totalWaitToOpenStatusSessions, int totalInstitutes, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+            ZoneId timeZone, boolean isShowAll) {
 
         this.totalOngoingSessions = totalOngoingSessions;
         this.totalOpenStatusSessions = totalOpenStatusSessions;
@@ -46,7 +46,7 @@ public class AdminSessionsPageData extends PageData {
         this.totalInstitutes = totalInstitutes;
         this.rangeStart = rangeStart;
         this.rangeEnd = rangeEnd;
-        this.zone = zone;
+        this.timeZone = timeZone;
         this.isShowAll = isShowAll;
         setFilter();
         setInstitutionPanels(map, sessionToInstructorIdMap);
@@ -99,33 +99,33 @@ public class AdminSessionsPageData extends PageData {
     }
 
     @SuppressWarnings("deprecation")
-    public List<String> getHourOptionsAsHtml(Date date) {
+    public List<String> getHourOptionsAsHtml(LocalDateTime ldt) {
         ArrayList<String> result = new ArrayList<>();
         for (int i = 0; i <= 23; i++) {
             result.add("<option value=\"" + i + "\"" + " "
-                       + (date.getHours() == i ? "selected" : "")
+                       + (ldt.getHour() == i ? "selected" : "")
                        + ">" + String.format("%02dH", i) + "</option>");
         }
         return result;
     }
 
     @SuppressWarnings("deprecation")
-    public List<String> getMinuteOptionsAsHtml(Date date) {
+    public List<String> getMinuteOptionsAsHtml(LocalDateTime ldt) {
         ArrayList<String> result = new ArrayList<>();
         for (int i = 0; i <= 59; i++) {
             result.add("<option value=\"" + i + "\"" + " "
-                       + (date.getMinutes() == i ? "selected" : "")
+                       + (ldt.getMinute() == i ? "selected" : "")
                        + ">" + String.format("%02d", i) + "</option>");
         }
         return result;
     }
 
     public List<String> getTimeZoneOptionsAsHtml() {
-        return getTimeZoneOptionsAsHtml(zone);
+        return getTimeZoneOptionsAsHtml(timeZone);
     }
 
     public String getTimeZoneAsString() {
-        return StringHelper.toUtcFormat(zone);
+        return timeZone.toString();
     }
 
     public String getFeedbackSessionStatsLink(String courseId, String feedbackSessionName, String user) {
@@ -185,7 +185,7 @@ public class AdminSessionsPageData extends PageData {
     }
 
     private void setFilter() {
-        filter = new AdminFilter(TimeHelper.formatDate(rangeStart), getHourOptionsAsHtml(rangeStart),
+        filter = new AdminFilter(TimeHelper.formatDate(rangeStart), getHourOptionsAsHtml(rangeEnd),
                                  getMinuteOptionsAsHtml(rangeStart), TimeHelper.formatDate(rangeEnd),
                                  getHourOptionsAsHtml(rangeEnd), getMinuteOptionsAsHtml(rangeEnd),
                                  getTimeZoneOptionsAsHtml());

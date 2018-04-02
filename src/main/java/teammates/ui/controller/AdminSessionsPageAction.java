@@ -1,8 +1,8 @@
 package teammates.ui.controller;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +30,9 @@ public class AdminSessionsPageAction extends Action {
     private int totalClosedStatusSessions;
     private int totalWaitToOpenStatusSessions;
     private int totalInstitutes;
-    private Date rangeStart;
-    private Date rangeEnd;
-    private double zone;
+    private LocalDateTime rangeStart;
+    private LocalDateTime rangeEnd;
+    private ZoneId timeZone;
     private boolean isShowAll;
 
     @Override
@@ -48,10 +48,9 @@ public class AdminSessionsPageAction extends Action {
             return result;
         }
 
-        Date rangeStartUtc = TimeHelper.convertLocalDateToUtc(rangeStart, zone);
-        Date rangeEndUtc = TimeHelper.convertLocalDateToUtc(rangeEnd, zone);
         List<FeedbackSessionAttributes> allOpenFeedbackSessionsList =
-                logic.getAllOpenFeedbackSessions(rangeStartUtc, rangeEndUtc);
+                logic.getAllOpenFeedbackSessions(TimeHelper.convertLocalDateTimeToInstant(rangeStart, timeZone),
+                        TimeHelper.convertLocalDateTimeToInstant(rangeEnd, timeZone));
 
         result = createShowPageResultIfNoOngoingSession(allOpenFeedbackSessionsList);
         if (result != null) {
@@ -75,15 +74,15 @@ public class AdminSessionsPageAction extends Action {
         }
     }
 
-    private void prepareDefaultPageData(Calendar calStart, Calendar calEnd) {
+    private void prepareDefaultPageData(LocalDateTime start, LocalDateTime end) {
         this.map = new HashMap<>();
         this.totalOngoingSessions = 0;
         this.totalOpenStatusSessions = 0;
         this.totalClosedStatusSessions = 0;
         this.totalOpenStatusSessions = 0;
         this.totalInstitutes = 0;
-        this.rangeStart = calStart.getTime();
-        this.rangeEnd = calEnd.getTime();
+        this.rangeStart = start;
+        this.rangeEnd = end;
     }
 
     private ActionResult createShowPageResultIfParametersInvalid() {
@@ -95,18 +94,13 @@ public class AdminSessionsPageAction extends Action {
         String endMin = getRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_ENDMINUTE);
         String timeZone = getRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_TIMEZONE);
 
-        Date start;
-        Date end;
-        double zone = 0.0;
-
-        Calendar calStart = TimeHelper.now(zone);
-        Calendar calEnd = TimeHelper.now(zone);
-        calStart.add(Calendar.DAY_OF_YEAR, -3);
-        calEnd.add(Calendar.DAY_OF_YEAR, 4);
+        ZoneId zone = Const.DEFAULT_TIME_ZONE;
+        LocalDateTime start = LocalDateTime.now(zone).minusDays(3);
+        LocalDateTime end = LocalDateTime.now(zone).plusDays(4);
 
         if (checkAllParameters("null")) {
-            start = calStart.getTime();
-            end = calEnd.getTime();
+            start = LocalDateTime.now(zone).minusDays(3);
+            end = LocalDateTime.now(zone).plusDays(4);
         } else if (checkAllParameters("notNull")) {
 
             SanitizationHelper.sanitizeForHtml(startDate);
@@ -117,25 +111,23 @@ public class AdminSessionsPageAction extends Action {
             SanitizationHelper.sanitizeForHtml(endMin);
             SanitizationHelper.sanitizeForHtml(timeZone);
 
-            zone = Double.parseDouble(timeZone);
+            zone = ZoneId.of(timeZone);
 
-            start = TimeHelper.convertLocalDateTimeToDate(
-                    TimeHelper.parseLocalDateTime(startDate, startHour, startMin));
-            end = TimeHelper.convertLocalDateTimeToDate(
-                    TimeHelper.parseLocalDateTime(endDate, endHour, endMin));
+            start = TimeHelper.parseLocalDateTime(startDate, startHour, startMin);
+            end = TimeHelper.parseLocalDateTime(endDate, endHour, endMin);
 
-            if (start.after(end)) {
+            if (start.isAfter(end)) {
                 isError = true;
                 statusToUser.add(new StatusMessage("The filter range is not valid."
                                  + " End time should be after start time.", StatusMessageColor.DANGER));
                 statusToAdmin = "Admin Sessions Page Load<br>"
                               + "<span class=\"bold\"> Error: invalid filter range</span>";
 
-                prepareDefaultPageData(calStart, calEnd);
+                prepareDefaultPageData(start, end);
                 data.init(this.map, this.sessionToInstructorIdMap, this.totalOngoingSessions,
                           this.totalOpenStatusSessions, this.totalClosedStatusSessions,
                           this.totalWaitToOpenStatusSessions, this.totalInstitutes, this.rangeStart,
-                          this.rangeEnd, this.zone, this.isShowAll);
+                          this.rangeEnd, this.timeZone, this.isShowAll);
                 return createShowPageResult(Const.ViewURIs.ADMIN_SESSIONS, data);
             }
 
@@ -146,17 +138,17 @@ public class AdminSessionsPageAction extends Action {
             statusToAdmin = "Admin Sessions Page Load<br>"
                           + "<span class=\"bold\"> Error: Missing Parameters</span>";
 
-            prepareDefaultPageData(calStart, calEnd);
+            prepareDefaultPageData(start, end);
             data.init(this.map, this.sessionToInstructorIdMap, this.totalOngoingSessions,
                       this.totalOpenStatusSessions, this.totalClosedStatusSessions, this.totalWaitToOpenStatusSessions,
-                      this.totalInstitutes, this.rangeStart, this.rangeEnd, this.zone, this.isShowAll);
+                      this.totalInstitutes, this.rangeStart, this.rangeEnd, this.timeZone, this.isShowAll);
             return createShowPageResult(Const.ViewURIs.ADMIN_SESSIONS, data);
 
         }
 
         this.rangeStart = start;
         this.rangeEnd = end;
-        this.zone = zone;
+        this.timeZone = zone;
 
         return null;
     }
@@ -178,7 +170,7 @@ public class AdminSessionsPageAction extends Action {
             this.totalInstitutes = 0;
             data.init(this.map, this.sessionToInstructorIdMap, this.totalOngoingSessions,
                       this.totalOpenStatusSessions, this.totalClosedStatusSessions, this.totalWaitToOpenStatusSessions,
-                      this.totalInstitutes, this.rangeStart, this.rangeEnd, this.zone, this.isShowAll);
+                      this.totalInstitutes, this.rangeStart, this.rangeEnd, this.timeZone, this.isShowAll);
             return createShowPageResult(Const.ViewURIs.ADMIN_SESSIONS, data);
         }
 
@@ -228,7 +220,7 @@ public class AdminSessionsPageAction extends Action {
         constructSessionToInstructorIdMap();
         data.init(this.map, this.sessionToInstructorIdMap, this.totalOngoingSessions,
                   this.totalOpenStatusSessions, this.totalClosedStatusSessions, this.totalWaitToOpenStatusSessions,
-                  this.totalInstitutes, this.rangeStart, this.rangeEnd, this.zone, this.isShowAll);
+                  this.totalInstitutes, this.rangeStart, this.rangeEnd, this.timeZone, this.isShowAll);
         return createShowPageResult(Const.ViewURIs.ADMIN_SESSIONS, data);
     }
 
