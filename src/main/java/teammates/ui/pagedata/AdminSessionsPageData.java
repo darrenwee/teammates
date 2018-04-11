@@ -125,7 +125,7 @@ public class AdminSessionsPageData extends PageData {
     }
 
     public String getTimeZoneAsString() {
-        return timeZone.toString();
+        return timeZone.getId();
     }
 
     public String getFeedbackSessionStatsLink(String courseId, String feedbackSessionName, String user) {
