@@ -59,14 +59,8 @@ public class AdminSessionsPageAction extends Action {
     }
 
     private void putIntoUnknownList(Map<String, List<FeedbackSessionAttributes>> map, FeedbackSessionAttributes fs) {
-        if (map.get("Unknown") != null) {
-            map.get("Unknown").add(fs);
-            return;
-        }
-
-        List<FeedbackSessionAttributes> newList = new ArrayList<>();
-        newList.add(fs);
-        map.put("Unknown", newList);
+        map.computeIfAbsent(UNKNOWN_INSTITUTION, key -> new ArrayList<>())
+                .add(fs);
     }
 
     private void prepareDefaultPageData() {
@@ -161,7 +155,7 @@ public class AdminSessionsPageAction extends Action {
     }
 
     private ActionResult createAdminSessionPageResult(List<FeedbackSessionAttributes> allOpenFeedbackSessionsList) {
-        HashMap<String, List<FeedbackSessionAttributes>> map = new HashMap<>();
+        Map<String, List<FeedbackSessionAttributes>> map = new HashMap<>();
         this.totalOngoingSessions = allOpenFeedbackSessionsList.size();
         this.totalOpenStatusSessions = getTotalNumOfOpenStatusSession(allOpenFeedbackSessionsList);
         this.totalClosedStatusSessions = getTotalNumOfCloseStatusSession(allOpenFeedbackSessionsList);
@@ -181,13 +175,8 @@ public class AdminSessionsPageAction extends Action {
                 continue;
             }
 
-            if (map.get(account.institute) == null) {
-                List<FeedbackSessionAttributes> newList = new ArrayList<>();
-                newList.add(fs);
-                map.put(account.institute, newList);
-            } else {
-                map.get(account.institute).add(fs);
-            }
+            map.computeIfAbsent(account.institute, key -> new ArrayList<>())
+                    .add(fs);
         }
 
         this.map = map;

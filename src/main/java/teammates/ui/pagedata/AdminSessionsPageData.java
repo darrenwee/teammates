@@ -197,6 +197,7 @@ public class AdminSessionsPageData extends PageData {
         institutionPanels = new ArrayList<>();
         map.forEach((key, feedbackSessionAttributesList) -> institutionPanels.add(
                 new InstitutionPanel(
-                        key, getFeedbackSessionRows(feedbackSessionAttributesList, sessionToInstructorIdMap))));
+                        key, getFeedbackSessionRows(feedbackSessionAttributesList, sessionToInstructorIdMap)))
+        );
     }
 }
