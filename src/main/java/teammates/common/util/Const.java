@@ -982,6 +982,7 @@ public final class Const {
         public static final String JOIN = "/join";
         public static final String TIMEZONE = "/timezone";
         public static final String LOCAL_DATE_TIME = "/localdatetime";
+        public static final String NATIONALITIES = "/nationalities";
 
         public static final String COURSE_STUDENT_DETAILS = "/courses/students/details";
         public static final String STUDENT_COURSE = "/student/course";
