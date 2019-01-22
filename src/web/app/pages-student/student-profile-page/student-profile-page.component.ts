@@ -35,6 +35,7 @@ interface StudentDetails {
 export class StudentProfilePageComponent implements OnInit {
 
   user: string = '';
+  id: string = '';
   student?: StudentDetails;
   editForm!: FormGroup;
   nationalities?: string[];
@@ -65,7 +66,7 @@ export class StudentProfilePageComponent implements OnInit {
   loadStudentProfile(): void {
     this.authService.getAuthUser().subscribe((auth: AuthInfo) => {
       if (auth.user) {
-        this.user = auth.user.id;
+        this.id = auth.user.id;
         const paramMap: { [key: string]: string } = {
           googleid: auth.user.id,
         };
@@ -103,7 +104,7 @@ export class StudentProfilePageComponent implements OnInit {
   submitEditForm(): void {
     console.log(<StudentProfile> this.editForm.value);
     const paramMap: { [key: string]: string } = {
-      googleid: this.user,
+      googleid: this.id,
     };
 
     this.requestService.put('/students', paramMap, <StudentProfile> this.editForm.value)
