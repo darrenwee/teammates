@@ -1,3 +1,68 @@
-<p>
-  student-profile-page works!
-</p>
+<div *ngIf="student">
+  <h1>Student Profile</h1>
+  <div class="card">
+    <div class="card-body fill-plain">
+      <h1>{{student.studentProfile.shortName}}</h1>
+      <form [formGroup]="editForm" (ngSubmit)="onSubmit(confirmEditProfile)">
+        <div class="form-row">
+          <label>The name you prefer to be called by instructors</label>
+          <input class="form-control" id="shortName" formControlName="shortName">
+        </div>
+        <div class="form-row">
+          <label>Long-term Contact Email</label>
+          <input class="form-control" id="email" formControlName="email">
+          <div class="email">only visible to your instructors</div>
+        </div>
+        <div class="form-row">
+          <label>Institute</label>
+          <input class="form-control" id="institute" formControlName="institute">
+        </div>
+        <div class="form-row">
+          <label>Nationality</label>
+          <!--<input class="form-control" id="nationality" formControlName="nationality">-->
+          <select id="nationality" formControlName="nationality">
+            <option *ngFor="let n of nationalities" [ngValue]="n"> {{n}}</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Gender</label>
+          <input type="radio" class="form-control" id="gender" formControlName="gender">Male
+        </div>
+
+        <div class="form-row">
+          <label>More Information about Yourself</label>
+          <input class="form-control more-info" id="moreInfo" formControlName="moreInfo">
+        </div>
+
+        <div class="text-center">
+          <input type="submit" class="btn btn-primary" id="button_submit" value="Save Profile">
+        </div>
+
+        <ng-template #confirmEditProfile let-modal>
+          <div class="modal-header alert-primary">
+            <h4 class="modal-title icon-primary">Save Changes?</h4>
+            <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-hidden="true"
+                (click)="modal.dismiss()">×</button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to make changes to your profile?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" (click)="submitEditForm(); modal.dismiss()">
+              Yes, save changes
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">
+              Cancel
+            </button>
+          </div>
+        </ng-template>
+
+        <div class="whisper">This profile will be visible to all your instructors and coursemates.</div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -16,7 +16,7 @@ import { SessionSubmissionPageModule } from '../pages-session/session-submission
 import { StudentCourseDetailsPageComponent } from './student-course-details-page/student-course-details-page.component';
 import { StudentHomePageComponent } from './student-home-page/student-home-page.component';
 import { StudentProfilePageComponent } from './student-profile-page/student-profile-page.component';
-
+import { ReactiveFormsModule } from '@angular/forms'
 import { Pipes } from '../pipes/pipes.module';
 
 const routes: Routes = [
@@ -77,6 +77,7 @@ const routes: Routes = [
     NgbModule,
     PageNotFoundModule,
     Pipes,
+    ReactiveFormsModule,
     StudentHelpPageModule,
     SessionResultPageModule,
     SessionSubmissionPageModule,
