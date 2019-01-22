@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpResponse } from '@angular/common/http';
 import { HttpRequestService } from "../../../services/http-request.service";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from "../../../services/auth.service";
@@ -107,15 +106,13 @@ export class StudentProfilePageComponent implements OnInit {
       googleid: this.user,
     };
 
-    this.requestService.putWithResponse('/students', paramMap, <StudentProfile> this.editForm.value)
-        .subscribe((response: HttpResponse<any>) => {
-      if (response.ok) {
-        this.statusMessageService.showSuccessMessage('Successfully saved your profile')
-      } else {
-        this.statusMessageService.showErrorMessage(`Could not save your profile! ${response.body}`)
-      }
-    }, (response: ErrorMessageOutput) => {
-      this.statusMessageService.showErrorMessage(`Could not save your profile! ${response.error.message}`)
-    })
+    this.requestService.put('/students', paramMap, <StudentProfile> this.editForm.value)
+        .subscribe((response) => {
+          if (response) {
+            this.statusMessageService.showSuccessMessage('Successfully saved your profile')
+          }
+        }, (response: ErrorMessageOutput) => {
+          this.statusMessageService.showErrorMessage(`Could not save your profile! ${response.error.message}`)
+        })
   }
 }
