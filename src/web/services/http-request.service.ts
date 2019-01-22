@@ -61,6 +61,17 @@ export class HttpRequestService {
   }
 
   /**
+   * Executes PUT request.
+   */
+  putWithResponse(endpoint: string, paramsMap: { [key: string]: string } = {}, body: any = null): Observable<any> {
+    const params: HttpParams = this.buildParams(paramsMap);
+    const withCredentials: boolean = this.withCredentials;
+    const headers: HttpHeaders = this.getCsrfHeader();
+    // TODO there has to be a better way of being able to peek at the response code of the PUT :-(
+    return this.httpClient.put(`${this.backendUrl}/webapi${endpoint}`, body, { params, headers, withCredentials, observe: "response" });
+  }
+
+  /**
    * Executes DELETE request.
    */
   delete(endpoint: string, paramsMap: { [key: string]: string } = {}): Observable<any> {
